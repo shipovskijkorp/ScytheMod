@@ -305,6 +305,34 @@ class MaterializationTests(unittest.TestCase):
                     if expected_transport is not None:
                         self.assertTrue(list(out.rglob(expected_transport)))
 
+    def test_piglin_armor_mixin_uses_correct_method_for_each_game_version(self):
+        mixin_relative = 'src/main/java/com/shipovskijkorp/scythes/mod/mixin/PiglinBrainMixin.java'
+        expected = {
+            '1.20.1-fabric': 'wearsGoldArmor',
+            '1.20.1-forge': 'wearsGoldArmor',
+            '1.21.1-fabric': 'wearsGoldArmor',
+            '1.21.1-neoforge': 'wearsGoldArmor',
+            '1.21.11-fabric': 'isWearingPiglinSafeArmor',
+            '1.21.11-neoforge': 'isWearingPiglinSafeArmor',
+            '26.1.2-fabric': 'isWearingSafeArmor',
+            '26.1.2-neoforge': 'isWearingSafeArmor',
+            '26.2-fabric': 'isWearingSafeArmor',
+            '26.2-neoforge': 'isWearingSafeArmor',
+            '26.3-fabric': 'isWearingSafeArmor',
+            '26.3-neoforge': 'isWearingSafeArmor',
+        }
+        self.assertEqual(set(sl.target_ids(self.props)), set(expected))
+        with tempfile.TemporaryDirectory() as tmp:
+            for target, expected_method in expected.items():
+                with self.subTest(target=target):
+                    out = sl.materialize_target(target, Path(tmp) / target, self.props)
+                    mixin = (out / mixin_relative).read_text(encoding='utf-8')
+                    self.assertIn(f'@Inject(method = "{expected_method}"', mixin)
+                    self.assertEqual(1, mixin.count('@Inject(method = '))
+                    self.assertNotIn('//? if ', mixin)
+                    mixins = json.loads((out / 'src/main/resources/scythes.mixins.json').read_text(encoding='utf-8'))
+                    self.assertIn('PiglinBrainMixin', mixins['mixins'])
+
     def test_cached_staging_unchanged_and_corruption_repaired(self):
         with tempfile.TemporaryDirectory() as tmp:
             target = sl.target_ids(self.props)[0]

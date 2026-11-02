@@ -28,6 +28,7 @@ import com.shipovskijkorp.scythes.mod.recipe.FireEssenceRecipe;
 import com.shipovskijkorp.scythes.mod.recipe.ToxicEssenceRecipe;
 import java.util.function.Function;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -189,7 +190,10 @@ public class ScytheMod implements ModInitializer {
         ScytheAbilityC2SPacket.register();
         FabricServerHooks.register();
 
-        LOGGER.info("ScytheMod 4.0 initialized successfully for Minecraft 1.21.11");
+        LOGGER.info("ScytheMod {} initialized successfully for Minecraft 1.21.11",
+                FabricLoader.getInstance().getModContainer(MOD_ID)
+                        .map(container -> container.getMetadata().getVersion().getFriendlyString())
+                        .orElse("unknown"));
     }
 
     public static Identifier id(String path) {
