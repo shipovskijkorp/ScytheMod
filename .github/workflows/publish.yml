@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
-          import source_layout as sl
+          from scripts import source_layout as sl
           props = sl.load_properties()
           fabric = next(
               row for row in sl.publish_matrix(props)["include"]
